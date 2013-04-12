@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.6
 # v1.0
 # Ryan Nguyen
 
@@ -6,41 +6,28 @@
 # 2. prints out a compiled report of the created servers containing: id, public ipv4, private ipv4, root password
 
 import os
-import pyrax
-import string
-import re
-import sys
+import sys 
 import time
+import argparse
 import common as helper
+import pyrax
 
 # prelimsies
-seconds_before_retrying = 5
-prefix = 'test'
 creds_file = os.path.expanduser("~/.rackspace_cloud_credentials")
 pyrax.set_credential_file(creds_file)
 cs = pyrax.cloudservers
+prefix = 'test'
 
-disp_time = helper.disp_time()
+# get quantity of servers
+parser = argparse.ArgumentParser(description = "creates a specified number of 512MB cloud servers")
+parser.add_argument('qty', action='store', type=int, help='quantity of servers to create') 
+args = parser.parse_args()
 
-# takes a single parameter: quantity of servers to create
-if len(sys.argv)<2:
-        print '{0}: <number of servers>'.format(sys.argv[0])
+# limit quantity to less than 50
+if (args.qty < 1) or (args.qty > 50):
+        print 'ERROR: qty is limited to 1-50 servers'
         sys.exit(1)
-else:
-        num_servers = helper.strip_non_numbers(sys.argv[1])
-        error = 'ERROR: you entered an invalid number of servers'
-        if num_servers == '':
-                print error
-                sys.exit(1)
-        num_servers = int(num_servers)
-        if (num_servers < 1) or (num_servers > 50):
-                print error, '[ either too few (0) or too many >50 ]'
-                sys.exit(1)
-        print 'building {0} servers...'.format(num_servers)
-
-create_servers = []
-for n in range (1, num_servers+1):
-        create_servers.append(prefix+str(n))
+print 'building %s servers...' % args.qty
 
 # get all OS's in a list, filter list for Cent* matches, sort filtered list, and grab latest version
 os_imgs = helper.act_loop(cs.images.list)
@@ -53,7 +40,8 @@ sv_512 = [flavor for flavor in helper.act_loop(cs.flavors.list) if "512" in flav
 # queue a list of servers to build out
 queued_servers = []
 data = {}
-for host in create_servers:
+for n in range (1, args.qty+1):
+	host = prefix+str(n)
         data = {
                 'name': host,
                 'os_img_id': latest_cent_os_img.id,

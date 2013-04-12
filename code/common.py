@@ -64,7 +64,7 @@ def build_servers(queued_servers):
 		svr['net'] = server.networks
 		svr['pub'] = None
 		svr['priv'] = None
-		svr['pass'] = None
+		svr['pass'] = server.adminPass
 		svr['completed'] = 'no'
 
 	num_completed_servers = 0
