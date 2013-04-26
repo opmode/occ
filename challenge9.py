@@ -9,7 +9,7 @@ import os
 import sys 
 import time
 import argparse
-import common as helper
+import code.common as helper
 import pyrax
 
 # prelimsies
