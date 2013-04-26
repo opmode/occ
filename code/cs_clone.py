@@ -70,8 +70,8 @@ for n in range (1, args.qty+1):
     host = prefix+str(n)
     data = {
         'name': host,
-        'os_img_id': latest_cent_os_img.id,
-        'flavor_id': sv_512.id,
+        'os_img_id': os_img.id,
+        'flavor_id': sv_flavor.id,
         'files': files,
         'completed': 'no'
         }
