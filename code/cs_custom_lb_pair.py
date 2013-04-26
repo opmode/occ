@@ -124,11 +124,11 @@ while True:
                 print "Protocol:", lb.protocol
                 break
 
+print ' '
+print '-------------'
+print 'SERVER BUILD REPORT'
+print '-------------'
 for svr in finished_servers:
-        print ' '
-        print '-------------'
-        print 'SERVER BUILD REPORT'
-        print '-------------'
         print "ID:", svr['id']
         print "Server:", svr['name']
         print "Public IP:", svr['pub']
