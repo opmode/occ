@@ -18,7 +18,7 @@ cdns = pyrax.cloud_dns
 
 # take three parameters: 1: your hosted domain 2: a valid hostname (e.g.: www), 3: a valid IPv4 address
 if len(sys.argv) < 3:
-        print '{0}: <domain> <host> <ipv4address>'.format(sys.argv[0])
+        print '{0}: <domain> <hostname> <ipv4address>'.format(sys.argv[0])
         sys.exit(1)
 
 valid_fqdn = helper.validate_fqdn(sys.argv[1])
@@ -28,7 +28,6 @@ valid_ipv4 = helper.validate_ipv4(sys.argv[3])
 # use helper function to ensure that the specified domain is valid
 if valid_fqdn:
 	valid_fqdn = sys.argv[1]
-	print valid_fqdn, 'seems valid, but I have not verified this on remote server yet..'
 else:
         print 'ERROR: invalid characters in your FQDN'
         sys.exit(1)
@@ -53,6 +52,7 @@ else:
 get_domain = [dom for dom in helper.act_loop(cdns.list) if valid_fqdn == dom.name]
 if len(get_domain) == 1:
 	domain = get_domain[0]
+    print 'validated domain: %s successfully' % domain
 else:
 	print 'ERROR:', valid_fqdn, 'does not exist on your account'
 	sys.exit(1)
