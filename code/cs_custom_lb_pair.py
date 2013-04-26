@@ -90,7 +90,7 @@ while True:
                 helper.act_loop(lb.add_health_monitor, type="CONNECT", delay=10, timeout=10, attemptsBeforeDeactivation=3)
                 html_error_page = '<html><body><h1>stuff is messed up</h1><iframe width="420" height="315" src="http://www.youtube.com/embed/XYYo3T6nCw8?list=FLaE5b9q2s2yO77ZIXwqbHog&autoplay=1" frameborder="0" allowfullscreen></iframe></body></html>'
                 while True:
-                        print 'updating health montor..'
+                        print 'updating health monitor..'
                         lb = helper.act_loop(clb.get, lb.id)
                         if lb.status == 'ACTIVE':
                                 break
