@@ -35,9 +35,10 @@ os_img = os_img[0]
 sv_flavor = [flavor for flavor in helper.act_loop(cs.flavors.list) if args.flavor == flavor.ram][0]
 
 # queue a list of servers to build out
+qty = 1
 queued_servers = []
 data = {}
-for n in range (1, 0+1):
+for n in range (1, qty+1):
     host = prefix+str(n)
     data = {
         'name': args.hostname,
