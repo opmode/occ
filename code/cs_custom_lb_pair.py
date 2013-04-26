@@ -87,6 +87,7 @@ for svr in finished_servers:
         print '-------------'
         nodes.append(helper.act_loop(clb.Node, address=svr['priv'], port=80, condition="ENABLED"))
 
+print 'adding the servers to the cloud load balancer..'
 vip = helper.act_loop(clb.VirtualIP, type="PUBLIC")
 default_algorithm = helper.act_loop(map, str, clb.algorithms)[0]
 lb_name = '{0}-lb'.format(prefix)

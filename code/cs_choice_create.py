@@ -2,66 +2,51 @@
 # v1.0
 # Ryan Nguyen
 
-# 1. creates a specified number of 512MB cloud servers
+# 1. creates a cloud server with arguments FQDN, IMAGE, and FLAVOR
 # 2. prints out a compiled report of the created servers containing: id, public ipv4, private ipv4, root password
 
 import os
-import pyrax
-import string
-import re
-import sys
+import sys 
 import time
+import argparse
 import common as helper
+import pyrax
 
 # prelimsies
-seconds_before_retrying = 5
-prefix = 'test'
 creds_file = os.path.expanduser("~/.rackspace_cloud_credentials")
 pyrax.set_credential_file(creds_file)
 cs = pyrax.cloudservers
+prefix = 'test'
 
-disp_time = helper.disp_time()
+# get quantity of servers
+parser = argparse.ArgumentParser(description = "creates a cloud servers")
+parser.add_argument('hostname', action='store', type=str, help='i.e.: hostname') 
+parser.add_argument('os_image', action='store', type=str, help='uses search keyword: Cent, Ubuntu') 
+parser.add_argument('flavor', action='store', type=int, help='choose either: 512, 1024, 2048, 4096, or 8192') 
+args = parser.parse_args()
 
-# takes a single parameter: quantity of servers to create
-if len(sys.argv)<2:
-        print '{0}: <number of servers>'.format(sys.argv[0])
-        sys.exit(1)
-else:
-        num_servers = helper.strip_non_numbers(sys.argv[1])
-        error = 'ERROR: you entered an invalid number of servers'
-        if num_servers == '':
-                print error
-                sys.exit(1)
-        num_servers = int(num_servers)
-        if (num_servers < 1) or (num_servers > 50):
-                print error, '[ either too few (0) or too many >50 ]'
-                sys.exit(1)
-        print 'building {0} servers...'.format(num_servers)
-
-create_servers = []
-for n in range (1, num_servers+1):
-        create_servers.append(prefix+str(n))
-
+print 'getting os image information..'
 # get all OS's in a list, filter list for Cent* matches, sort filtered list, and grab latest version
 os_imgs = helper.act_loop(cs.images.list)
-cent_os_imgs = [img for img in os_imgs if "Cent" in img.name]
-cent_os_imgs.sort(key=lambda x: x.name, reverse=True)
-latest_cent_os_img = cent_os_imgs[0]
+os_img = [img for img in os_imgs if args.os_image in img.name]
+os_img.sort(key=lambda x: x.name, reverse=True)
+os_img = os_img[0]
 # search flavors, get 512* instance via match
-sv_512 = [flavor for flavor in helper.act_loop(cs.flavors.list) if "512" in flavor.name][0]
+sv_flavor = [flavor for flavor in helper.act_loop(cs.flavors.list) if args.flavor == flavor.ram][0]
 
 # queue a list of servers to build out
 queued_servers = []
 data = {}
-for host in create_servers:
-        data = {
-                'name': host,
-                'os_img_id': latest_cent_os_img.id,
-                'flavor_id': sv_512.id,
-                'files': None, 
-                'completed': 'no'
-                }
-        queued_servers.append(data)
+for n in range (1, args.qty+1):
+    host = prefix+str(n)
+    data = {
+        'name': host,
+        'os_img_id': os_img.id,
+        'flavor_id': sv_flavor.id,
+        'files': None, 
+        'completed': 'no'
+        }
+    queued_servers.append(data)
 
 # build out the servers in the queue
 finished_servers = helper.build_servers(queued_servers)
@@ -71,10 +56,20 @@ print '-------------'
 print 'YAY, TIME FOR THE BUILD REPORT..'
 print '-------------'
 for svr in finished_servers:
-        print "ID:", svr['id']
-        print "Server:", svr['name']
-        print "Public IP:", svr['pub']
-        print "Private IP:", svr['priv']
-        print "Admin password:", svr['pass']
-        print '-------------'
+    print "ID:", svr['id']
+    print "Server:", svr['name']
+    print "Public IP:", svr['pub']
+    print "Private IP:", svr['priv']
+    print "Admin password:", svr['pass']
+    print '-------------'
+
+domains = helper.act_loop(cdns.list, limit=1)
+for domain in domains:
+    dom = domain
+    dom_name = dom.name
+    # create a cname for the container we created
+    subdomain = '{0}.{1}'.format(lb_name, dom_name)
+    recs = [{"type": "A", "name": subdomain, "data": get_vip, "ttl": 300}]
+    # add our A record
+    helper.act_loop(cdns.add_records, dom, recs)
 
