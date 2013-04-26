@@ -16,7 +16,7 @@ import pyrax
 creds_file = os.path.expanduser("~/.rackspace_cloud_credentials")
 pyrax.set_credential_file(creds_file)
 cs = pyrax.cloudservers
-prefix = 'test'
+cdns = pyrax.cloud_dns
 
 # get quantity of servers
 parser = argparse.ArgumentParser(description = "creates a cloud servers")
@@ -39,7 +39,6 @@ qty = 1
 queued_servers = []
 data = {}
 for n in range (1, qty+1):
-    host = prefix+str(n)
     data = {
         'name': args.hostname,
         'os_img_id': os_img.id,
