@@ -37,10 +37,10 @@ sv_flavor = [flavor for flavor in helper.act_loop(cs.flavors.list) if args.flavo
 # queue a list of servers to build out
 queued_servers = []
 data = {}
-for n in range (1, args.qty+1):
+for n in range (1, 0+1):
     host = prefix+str(n)
     data = {
-        'name': host,
+        'name': args.hostname,
         'os_img_id': os_img.id,
         'flavor_id': sv_flavor.id,
         'files': None, 
@@ -68,8 +68,8 @@ for domain in domains:
     dom = domain
     dom_name = dom.name
     # create a cname for the container we created
-    subdomain = '{0}.{1}'.format(lb_name, dom_name)
-    recs = [{"type": "A", "name": subdomain, "data": get_vip, "ttl": 300}]
+    subdomain = '{0}.{1}'.format(svr['name'], dom_name)
+    recs = [{"type": "A", "name": subdomain, "data": svr['pub'], "ttl": 300}]
     # add our A record
     helper.act_loop(cdns.add_records, dom, recs)
 
