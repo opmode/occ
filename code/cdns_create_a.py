@@ -52,7 +52,7 @@ else:
 get_domain = [dom for dom in helper.act_loop(cdns.list) if valid_fqdn == dom.name]
 if len(get_domain) == 1:
 	domain = get_domain[0]
-    print 'validated domain: %s successfully' % domain
+	print 'validated domain: %s successfully' % domain.name
 else:
 	print 'ERROR:', valid_fqdn, 'does not exist on your account'
 	sys.exit(1)
