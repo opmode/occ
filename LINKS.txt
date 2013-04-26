@@ -1,3 +1,0 @@
-https://github.com/rackspace/pyrax/tree/master/samples
-https://github.com/rackspace/pyrax/blob/master/docs/cloud_servers.md
-https://github.com/rackspace/pyrax/blob/master/docs/cloud_loadbalancers.md
