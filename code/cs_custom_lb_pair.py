@@ -73,21 +73,10 @@ for n in range (1, args.qty+1):
 # build out the servers in the queue
 finished_servers = helper.build_servers(queued_servers)
 nodes = []
-print ' '
-print '-------------'
-print 'YAY, TIME FOR THE BUILD REPORT..'
-print '-------------'
-print ' '
 for svr in finished_servers:
-        print "ID:", svr['id']
-        print "Server:", svr['name']
-        print "Public IP:", svr['pub']
-        print "Private IP:", svr['priv']
-        print "Admin password:", svr['pass']
-        print '-------------'
+        print 'adding server to the cloud load balancer..'
         nodes.append(helper.act_loop(clb.Node, address=svr['priv'], port=80, condition="ENABLED"))
 
-print 'adding the servers to the cloud load balancer..'
 vip = helper.act_loop(clb.VirtualIP, type="PUBLIC")
 default_algorithm = helper.act_loop(map, str, clb.algorithms)[0]
 lb_name = '{0}-lb'.format(prefix)
@@ -123,6 +112,7 @@ while True:
                 recs = [{"type": "A", "name": subdomain, "data": get_vip, "ttl": 300}]
                 # add our A record
                 helper.act_loop(cdns.add_records, dom, recs)
+                print "-------------------------------------"
                 print 'created dns record: {0} -> {1} on domain: {2}'.format(subdomain, get_vip, dom_name)
                 print "-------------------------------------"
                 print "Load Balancer:", lb.name
@@ -133,3 +123,15 @@ while True:
                 print "Algorithm:", lb.algorithm
                 print "Protocol:", lb.protocol
                 break
+
+for svr in finished_servers:
+        print ' '
+        print '-------------'
+        print 'SERVER BUILD REPORT'
+        print '-------------'
+        print "ID:", svr['id']
+        print "Server:", svr['name']
+        print "Public IP:", svr['pub']
+        print "Private IP:", svr['priv']
+        print "Admin password:", svr['pass']
+        print '-------------'
