@@ -1,15 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 # v 1.0
 # Ryan Nguyen
 
 # creates a clone of your newest server
 
 import os
-import pyrax
-import string
-import re
 import sys
 import time
+import argparse
+import pyrax
 import common as helper
 
 # preliminary
@@ -23,23 +22,14 @@ disp_time = helper.disp_time()
 
 # takes a single parameter: quantity of clones to create 
 # ensure that a valid amount is provided, cap the amount to 50 for sanity reasons
-if len(sys.argv)<2:
-        print '{0}: <number of servers>'.format(sys.argv[0])
-        sys.exit(1)
-else:
-        num_servers = helper.strip_non_numbers(sys.argv[1])
-        error = 'ERROR: you entered an invalid number of servers'
-        if num_servers == '':
-                print error
-                sys.exit(1)
-        num_servers = int(num_servers)
-        if (num_servers < 1) or (num_servers > 50):
-                print error, '[ either too few (0) or too many >50 ]'
-                sys.exit(1)
+parser = argparse.ArgumentParser(description = "creates a specified number of 512MB cloud servers")
+parser.add_argument('qty', action='store', type=int, help='quantity of servers to clone') 
+args = parser.parse_args()
 
-create_servers = []
-for n in range (1, num_servers+1):
-        create_servers.append(prefix+str(n))
+# limit quantity to less than 50
+if (args.qty < 1) or (args.qty > 50):
+    print 'ERROR: qty is limited to 1-50 servers'
+    sys.exit(1)
 
 # get most recent cloud server, take an clone image of it
 server = helper.act_loop(cs.servers.list)[0]
@@ -75,15 +65,17 @@ except IOError as e:
 # queue a list of servers to build out
 queued_servers = []
 data = {}
-for host in create_servers:
-        data = {
-                'name': host,
-                'os_img_id': os_img.id,
-                'flavor_id': sv_flavor.id,
-                'files': files,
-                'completed': 'no'
-                }
-        queued_servers.append(data)
+
+for n in range (1, args.qty+1):
+    host = prefix+str(n)
+    data = {
+        'name': host,
+        'os_img_id': latest_cent_os_img.id,
+        'flavor_id': sv_512.id,
+        'files': files,
+        'completed': 'no'
+        }
+    queued_servers.append(data)
 
 # build out the servers in the queue
 finished_servers = helper.build_servers(queued_servers)

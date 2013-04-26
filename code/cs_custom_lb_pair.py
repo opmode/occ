@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 # v 1.0
 # Ryan Nguyen
 
@@ -14,11 +14,10 @@
 # 9. uploads the error page html to a file in cloud files for backup.
 
 import os
-import pyrax
-import string
-import re
 import sys
 import time
+import argparse
+import pyrax
 import common as helper
 
 # prelimsies
@@ -33,28 +32,19 @@ cf = pyrax.cloudfiles
 
 disp_time = helper.disp_time()
 
-if len(sys.argv)<2:
-        print '{0}: <number of servers>'.format(sys.argv[0])
-        sys.exit(1)
-else:
-        num_servers = helper.strip_non_numbers(sys.argv[1])
-        error = 'ERROR: you entered an invalid number of servers'
-        if num_servers == '':
-                print error
-                sys.exit(1)
-        num_servers = int(num_servers)
-        if (num_servers < 1) or (num_servers > 50):
-                print error, '[ either too few (0) or too many >50 ]'
-                sys.exit(1)
-        print 'building {0} servers...'.format(num_servers)
+# get quantity of servers
+parser = argparse.ArgumentParser(description = "creates a specified number of 512MB cloud servers behind a cloud load balancer")
+parser.add_argument('qty', action='store', type=int, help='quantity of servers to create')
+args = parser.parse_args()
 
-create_servers = []
-for n in range (1, num_servers+1):
-        create_servers.append(prefix+str(n))
+# limit quantity to less than 50
+if (args.qty < 1) or (args.qty > 50):
+    print 'ERROR: qty is limited to 1-50 servers'
+    sys.exit(1)
 
 # get all OS's in a list, filter list for Cent* matches, sort filtered list, and grab latest version
+print 'getting os image information..'
 os_imgs = helper.act_loop(cs.images.list)
-
 cent_os_imgs = [img for img in helper.act_loop(cs.images.list) if "Cent" in img.name]
 cent_os_imgs.sort(key=lambda x: x.name, reverse=True)
 latest_cent_os_img = cent_os_imgs[0]
@@ -69,15 +59,16 @@ files = {"/root/.ssh/authorized_keys": ssh_auth_file}
 # queue a list of servers to build out
 queued_servers = []
 data = {}
-for host in create_servers:
-        data = {
-		'name': host, 
-		'os_img_id': latest_cent_os_img.id, 
-		'flavor_id': sv_512.id, 
-		'files': files, 
-		'completed': 'no'
-		}
-        queued_servers.append(data)
+for n in range (1, args.qty+1):
+    host = prefix+str(n)
+    data = {
+        'name': host,
+        'os_img_id': latest_cent_os_img.id,
+        'flavor_id': sv_512.id,
+        'files': files,
+        'completed': 'no'
+        }
+    queued_servers.append(data)
 
 # build out the servers in the queue
 finished_servers = helper.build_servers(queued_servers)

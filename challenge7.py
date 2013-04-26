@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.7
 # v 0.0.1
 # Ryan Nguyen
 
@@ -8,6 +8,6 @@ import os
 import sys
 
 try:
-	os.system('./code/cs_lb_pair.py %s' % sys.argv[1])
+	os.system('./code/cs_lb_pair.py 2')
 except:
 	os.system('./code/cs_lb_pair.py')

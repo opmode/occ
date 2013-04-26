@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.6
+#!/usr/bin/env python2.7
 # v1.0
 # Ryan Nguyen
 
@@ -25,10 +25,10 @@ args = parser.parse_args()
 
 # limit quantity to less than 50
 if (args.qty < 1) or (args.qty > 50):
-        print 'ERROR: qty is limited to 1-50 servers'
-        sys.exit(1)
-print 'building %s servers...' % args.qty
+    print 'ERROR: qty is limited to 1-50 servers'
+    sys.exit(1)
 
+print 'getting os image information..'
 # get all OS's in a list, filter list for Cent* matches, sort filtered list, and grab latest version
 os_imgs = helper.act_loop(cs.images.list)
 cent_os_imgs = [img for img in os_imgs if "Cent" in img.name]
@@ -41,15 +41,15 @@ sv_512 = [flavor for flavor in helper.act_loop(cs.flavors.list) if "512" in flav
 queued_servers = []
 data = {}
 for n in range (1, args.qty+1):
-	host = prefix+str(n)
-        data = {
-                'name': host,
-                'os_img_id': latest_cent_os_img.id,
-                'flavor_id': sv_512.id,
-                'files': None, 
-                'completed': 'no'
-                }
-        queued_servers.append(data)
+    host = prefix+str(n)
+    data = {
+        'name': host,
+        'os_img_id': latest_cent_os_img.id,
+        'flavor_id': sv_512.id,
+        'files': None, 
+        'completed': 'no'
+        }
+    queued_servers.append(data)
 
 # build out the servers in the queue
 finished_servers = helper.build_servers(queued_servers)
@@ -59,10 +59,9 @@ print '-------------'
 print 'YAY, TIME FOR THE BUILD REPORT..'
 print '-------------'
 for svr in finished_servers:
-        print "ID:", svr['id']
-        print "Server:", svr['name']
-        print "Public IP:", svr['pub']
-        print "Private IP:", svr['priv']
-        print "Admin password:", svr['pass']
-        print '-------------'
-
+    print "ID:", svr['id']
+    print "Server:", svr['name']
+    print "Public IP:", svr['pub']
+    print "Private IP:", svr['priv']
+    print "Admin password:", svr['pass']
+    print '-------------'
