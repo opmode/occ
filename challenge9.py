@@ -19,7 +19,7 @@ cs = pyrax.cloudservers
 cdns = pyrax.cloud_dns
 
 # get quantity of servers
-parser = argparse.ArgumentParser(description = "creates a cloud servers")
+parser = argparse.ArgumentParser(description = "creates a cloud server with provided arguments")
 parser.add_argument('hostname', action='store', type=str, help='i.e.: hostname') 
 parser.add_argument('os_image', action='store', type=str, help='uses search keyword: Cent, Ubuntu') 
 parser.add_argument('flavor', action='store', type=int, help='choose either: 512, 1024, 2048, 4096, or 8192') 
